@@ -45,7 +45,7 @@ var c = new Crawler({
         		
         	});
 
-        	$(tr).find("td > a").each(function(index,a){
+        	$(tr).find("td a").each(function(index,a){
         		var name = $(a).text();
         		candidate.name = name;
         	});
@@ -58,7 +58,7 @@ var c = new Crawler({
 });
 
 c.queue("http://www.cne.gob.ve/resultado_presidencial_2013/r/1/reg_000000.html");
-
+// c.queue("http://www.cne.gob.ve/resultado_presidencial_2012/r/1/reg_000000.html");
 var tmp = function(uno) {
 	console.log(uno);
 }
