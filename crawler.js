@@ -5,12 +5,17 @@ var c = new Crawler({
 
     // This will be called for each crawled page
     "callback":function(error,result,$) {
-    	var location = "";
+    	var location = {};
     	$(".locationBar a").each(function(index,a){
     		var val = $(a).text();
     		val = val.split('\t').join('');
     		val = val.replace('\n',' ');
-    		location += " "+val;
+
+    		var val_array = val.split(':');
+    		var key = val_array[0].trim();
+    		key = key.split(' ').join('_');
+    		var value = val_array[1].trim();
+    		location[key] = value;
     	});
 
         // $ is a jQuery instance scoped to the server-side DOM of the page
