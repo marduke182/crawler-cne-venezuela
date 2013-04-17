@@ -1,4 +1,53 @@
 var Crawler = require("crawler").Crawler;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
+var CenterSchema = new Schema({
+    id: {
+        type: String
+    },        
+    location: {
+        Pais: {
+            type: String
+        },
+        Estado: {
+            type: String
+        },
+        Municipio: {
+            type: String
+        },
+        Parroquia: {
+            type: String
+        },
+        Centro_de_votación: {
+            type: String
+        }
+    },
+    candidates: {
+        type: [{
+            votes: {
+                type: String
+            },
+            percent: {
+                type: String
+            },
+            name: {
+                type: String
+            }
+        }]
+    }
+});
+
+
+mongoose.model('Centro', CenterSchema);
+
+var serverDb = mongoose.createConnection("127.0.0.1","cne_data", 27017, function(err) {
+    if(err instanceof Error) {
+        console.log("Ocurrio un error.");
+    }
+});
+
+var Center = serverDb.model('Centro');
 
 var c = new Crawler({
 	"maxConnections":10,
@@ -23,14 +72,14 @@ var c = new Crawler({
         	c.queue(a.href);
         });
 
-        var regex = /http:\/\/www.cne.gob.ve\/resultado_presidencial_2013\/r\/\d\/reg_(\d+).html/;
+        var regex = /http:\/\/www.cne.gob.ve\/resultado_presidencial_2013\/r\/(\d)\/reg_(\d+).html/;
         var match = regex.exec(this.uri);
-        var id_entity = match[1];
+        var id_entity = match[1]+"-"+match[2];
         // console.log(match[1]);
         var entity = {}
-        	entity.id = id_entity;
-        	entity.location = location;
-        	entity.candidates = [];
+        entity.id = id_entity;
+        entity.location = location;
+        entity.candidates = [];
         $(".tbsubtotalrow").each(function(index,tr){
         	var candidate = {};
 
@@ -50,15 +99,29 @@ var c = new Crawler({
         		candidate.name = name;
         	});
 
-			entity.candidates.push(candidate);
+           entity.candidates.push(candidate);
 
-        });
-        console.log(entity);
+       });
+        Center.findOne({id:entity.id}, function(err, exist) {
+            if(err)
+                console.log("Error en conseguir uno.");
+            if(exist) {
+                console.log("Ya existe los datos de ",entity.id);
+            } else {
+             var center = new Center(entity);
+             center.save(function(err) {
+                if (err) 
+                    console.log("error saving in database");
+                console.log("Se guardo con existo los datos del centro ", entity.id);
+            })
+         }
+
+
+     })
+
+//        console.log(entity);
     }
 });
 
 c.queue("http://www.cne.gob.ve/resultado_presidencial_2013/r/1/reg_000000.html");
-// c.queue("http://www.cne.gob.ve/resultado_presidencial_2012/r/1/reg_000000.html");
-var tmp = function(uno) {
-	console.log(uno);
-}
+
