@@ -23,7 +23,7 @@ var c = new Crawler({
         	c.queue(a.href);
         });
 
-        var regex = /http:\/\/www.cne.gob.ve\/resultado_presidencial_2013\/r\/1\/reg_(\d+).html/;
+        var regex = /http:\/\/www.cne.gob.ve\/resultado_presidencial_2013\/r\/\d\/reg_(\d+).html/;
         var match = regex.exec(this.uri);
         var id_entity = match[1];
         // console.log(match[1]);
